@@ -1,8 +1,22 @@
+var searchMethod;
+var searchMethods = {
+  title: previewByTitle,
+  author: previewByAuthor,
+  isbn: searchBookISBN,
+  oclc: searchBookOCLC,
+  lccn: searchBookLCCN,
+  olid: searchBookOLID
+};
+
 $(document).ready(function() {
+  
+  // Auto-populate dropdown text with default search method (Title)
+  setSearchMethod('author');
+  
+  $(document).on('keydown', '#search-bar', tempSearch);
+  
   // Drop Down Functionality
   $('.dropdown-trigger').dropdown();
-
-  $('#search-bar').keypress(tempSearch);
 });
 
 // Runs a search on OpenLibrary's search engine by a book's title,
@@ -57,7 +71,7 @@ function previewByAuthor(author) {
 
     // Temporarily do this
     if (bookList[0] != undefined) {
-      searchBook(bookList[0].isbn[0]);
+      searchBookISBN(bookList[0].isbn[0]);
     }
   });
 }
@@ -86,7 +100,7 @@ function searchBook(idType, id) {
   }).then(function(response) {
     console.log(response);
 
-    $('.book.img').empty();
+    $('.book-img').empty();
 
     // TODO: Display book to webpage, update webpage info
     if (response[idType + ':' + id].cover != undefined) {
@@ -96,10 +110,14 @@ function searchBook(idType, id) {
   });
 }
 
-function tempSearch(event) {
-  var keycode = (event.keyCode ? event.keyCode : event.which);
-  
-  if(keycode == '13'){
-    previewByTitle($(this).val());
+function tempSearch(e) {
+
+  // Run our search based on the current set search method
+  if (e.keyCode == 13) {
+    searchMethod($(this).val());
   }
+}
+
+function setSearchMethod(searchOption) {
+  searchMethod = searchMethods[searchOption.toLowerCase()];
 }
