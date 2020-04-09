@@ -1,4 +1,37 @@
-.nav-wrapper{
-    background-color: grey;
-    color: Blue;
+html, body{
+    height:100%;
+    margin:0;
+    padding:0;
+}
+.full-height{
+    height:100%
+}
+
+.book-img{
+    height: 65%;
+    width: auto;
+    margin: auto 5% auto 5%;
+    border: 3px solid rgb(255, 17, 0);
+}
+
+.book-info{
+    height:35%;
+    width:auto;
+    margin: 10px 5% auto 5%;
+    border: 3px solid rgb(4, 0, 248);
+}
+
+.nav-bar{
+    color:white;
+    margin:0;
+    padding:0;
+    Height: 50px;
+    background-color: green;
+}
+
+.border-test{
+    background-color: rgb(100, 160, 248);
+    color: white;
+    height: 50px;
+    border: 3px solid rgb(0, 0, 0);
 }
