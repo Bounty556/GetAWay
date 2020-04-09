@@ -1,5 +1,8 @@
 $(document).ready(function() {
   previewByAuthor('Eiichiro Oda');
+
+  // Drop Down Functionality
+  $('.dropdown-trigger').dropdown();
 });
 
 // Runs a search on OpenLibrary's search engine by a book's title,
@@ -12,6 +15,7 @@ function previewByTitle(title) {
   }).then(function(response) {
     let bookList = [];
 
+    // Only grab the first 5 books from our search
     for (let i = 0; i < response.docs.length; i++) {
       if (i === 5) {
         break;
@@ -58,7 +62,7 @@ function previewByAuthor(author) {
   });
 }
 
-// Gets book info by a book's ISBN and displays it to the webpage.
+// Gets book info by a book's ISBN and displays it to the webpage.c
 function searchBook(isbn) {
   $.ajax({
     url: 'https://openlibrary.org/api/books?bibkeys=ISBN:' + isbn + '&jscmd=data&format=json',
