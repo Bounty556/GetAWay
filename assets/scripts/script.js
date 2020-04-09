@@ -1,8 +1,8 @@
 $(document).ready(function() {
-  previewByAuthor('Eiichiro Oda');
-
   // Drop Down Functionality
   $('.dropdown-trigger').dropdown();
+
+  $('#search-bar').keypress(tempSearch);
 });
 
 // Runs a search on OpenLibrary's search engine by a book's title,
@@ -30,7 +30,7 @@ function previewByTitle(title) {
 
     // Temporarily do this
     if (bookList[0] != undefined) {
-      searchBook(bookList[0].isbn[0]);
+      searchBookISBN(bookList[0].isbn[0]);
     }
   });
 }
@@ -63,9 +63,25 @@ function previewByAuthor(author) {
 }
 
 // Gets book info by a book's ISBN and displays it to the webpage.c
-function searchBook(isbn) {
+function searchBookISBN(isbn) {
+  searchBook('ISBN', isbn);
+}
+
+function searchBookOCLC(oclc) {
+  searchBook('OCLC', oclc);
+}
+
+function searchBookLCCN(lccn) {
+  searchBook('LCCN', lccn);
+}
+
+function searchBookOLID(olid) {
+  searchBook('OLID', olid);
+}
+
+function searchBook(idType, id) {
   $.ajax({
-    url: 'https://openlibrary.org/api/books?bibkeys=ISBN:' + isbn + '&jscmd=data&format=json',
+    url: 'https://openlibrary.org/api/books?bibkeys=' + idType + ':' + id + '&jscmd=data&format=json',
     method: 'GET'
   }).then(function(response) {
     console.log(response);
@@ -73,9 +89,17 @@ function searchBook(isbn) {
     $('.book.img').empty();
 
     // TODO: Display book to webpage, update webpage info
-    if (response['ISBN:' + isbn].cover != undefined) {
-      let img = $('<img>').attr('src', response['ISBN:' + isbn].cover.large);
+    if (response[idType + ':' + id].cover != undefined) {
+      let img = $('<img>').attr('src', response[idType + ':' + id].cover.large);
       $('.book-img').append(img);
     }
   });
+}
+
+function tempSearch(event) {
+  var keycode = (event.keyCode ? event.keyCode : event.which);
+  
+  if(keycode == '13'){
+    previewByTitle($(this).val());
+  }
 }
