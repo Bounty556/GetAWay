@@ -2,6 +2,7 @@ html, body{
     height:100%;
     margin:0;
     padding:0;
+    background-image: url(https://img.wallpapersafari.com/desktop/1920/1080/83/50/ep0d7H.jpg);
 }
 .full-height{
     height:100%
@@ -12,6 +13,7 @@ html, body{
     width: auto;
     margin: auto 5% auto 5%;
     border: 3px solid rgb(255, 17, 0);
+    color: white;
 }
 
 .book-info{
@@ -19,6 +21,7 @@ html, body{
     width:auto;
     margin: 10px 5% auto 5%;
     border: 3px solid rgb(4, 0, 248);
+    color: white;
 }
 
 .nav-bar{
