@@ -35,3 +35,9 @@ html, body{
     height: 50px;
     border: 3px solid rgb(0, 0, 0);
 }
+
+#search-bar{
+    color: white;
+    background-color:rgb(36, 147, 250);
+    border: 2px solid black;
+}
