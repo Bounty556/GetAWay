@@ -1,5 +1,5 @@
 var searchMethod;
-var searchMethods = {
+var searchMethods = { // A list of all of our possible search method functions
   title: previewByTitle,
   author: previewByAuthor,
   isbn: searchBookISBN,
@@ -11,9 +11,12 @@ var searchMethods = {
 $(document).ready(function() {
   
   // Auto-populate dropdown text with default search method (Title)
-  setSearchMethod('author');
+  setSearchMethod('Title');
   
   $(document).on('keydown', '#search-bar', tempSearch);
+  $('#dropdown1').on('click', 'a', function() {
+    setSearchMethod($(this).text());
+  });
   
   // Drop Down Functionality
   $('.dropdown-trigger').dropdown();
@@ -49,6 +52,9 @@ function previewByTitle(title) {
   });
 }
 
+// Runs a search on OpenLibrary's search engine by a book's author,
+// grabbing a list of up to the first 5 books found and eventually
+// displaying them underneath the search bar
 function previewByAuthor(author) {
   $.ajax({
     url: 'https://openlibrary.org/search.json?author=' + author,
@@ -76,23 +82,27 @@ function previewByAuthor(author) {
   });
 }
 
-// Gets book info by a book's ISBN and displays it to the webpage.c
+// Gets book info by a book's ISBN
 function searchBookISBN(isbn) {
   searchBook('ISBN', isbn);
 }
 
+// Gets book info by a book's OCLC
 function searchBookOCLC(oclc) {
   searchBook('OCLC', oclc);
 }
 
+// Gets book info by a book's LCCN
 function searchBookLCCN(lccn) {
   searchBook('LCCN', lccn);
 }
 
+// Gets book info by a book's OLID
 function searchBookOLID(olid) {
   searchBook('OLID', olid);
 }
 
+// Runs AJAX call to get book info, and displays info to page
 function searchBook(idType, id) {
   $.ajax({
     url: 'https://openlibrary.org/api/books?bibkeys=' + idType + ':' + id + '&jscmd=data&format=json',
@@ -110,6 +120,7 @@ function searchBook(idType, id) {
   });
 }
 
+// The function ran when pressing 'enter' in the search bar
 function tempSearch(e) {
 
   // Run our search based on the current set search method
@@ -118,6 +129,9 @@ function tempSearch(e) {
   }
 }
 
+// Sets what method we're searching for a book with
 function setSearchMethod(searchOption) {
+  $('.dropdown-trigger').text(searchOption);
+
   searchMethod = searchMethods[searchOption.toLowerCase()];
 }
