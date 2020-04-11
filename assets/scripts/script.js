@@ -7,43 +7,44 @@ var searchMethods = { // A list of all of our possible search method functions
   lccn: searchBookLCCN,
   olid: searchBookOLID
 };
+var currentBook = null;
+var favoritesList;
 
 $(document).ready(function() {
   
   // Auto-populate dropdown text with default search method (Title)
   setSearchMethod('Title');
   
+  // Get favorites list
+  favoritesList = JSON.parse(localStorage.getItem('favoritesList')) || [];
+
+  init();
+});
+
+// Sets initial callbacks
+function init() {
   $(document).on('keydown', '#search-bar', tempSearch);
 
   // Update search method when clicked
   $('#dropdown1').on('click', 'a', function() {
     setSearchMethod($(this).text());
   });
+
+  // Search for book when favorite item is clicked
+  $('#dropdown2').on('click', 'a', function() {
+    searchBookISBN($(this).attr('data-isbn'));
+  });
   
+  // Show favorites list when clicked
+  $('#fav-list').on('click', loadFavoritesList);
+
+  // Add to favorites list
+  $('.fa-heart').on('click', addFavorite);
+
   // Drop Down Functionality
   $('#fav-list').dropdown();
   $('#search-by').dropdown();
-
-  //TODO: Fix this tomorrow when I get my API key
-//   $.ajax({
-//     url: 'https://cors-anywhere.herokuapp.com/https://api.sandbox.ebay.com/buy/browse/v1/item_summary/search',
-//     method: 'GET',
-//     headers: {
-//       q: 'testing'
-//     },
-//     data: {
-//       q: 'testing'
-//     },
-//     error: function (error) {
-//       console.log(error);
-//     }
-//   }).then(function(response) {
-//     console.log(response);
-//   });
-
-
-  makeAmazonAPICall('Beastars', 'Paru Itagaki');
-});
+}
 
 // Runs a search on OpenLibrary's search engine by a book's title,
 // grabbing a list of up to the first 5 books found and eventually
@@ -133,6 +134,13 @@ function searchBook(idType, id) {
   }).then(function(response) {
     console.log(response);
 
+    currentBook = {
+      title: response[idType + ':' + id].title,
+      isbn: id
+    };
+
+    // TODO: Check if this is in favorites list. If so, change favorite button to unfavorite button
+
     $('.book-img').empty();
 
     // TODO: Display book to webpage, update webpage info
@@ -159,8 +167,54 @@ function setSearchMethod(searchOption) {
   searchMethod = searchMethods[searchOption.toLowerCase()];
 }
 
+function addFavorite() {
+  if (currentBook == null) {
+    return;
+  }
+
+  // Check if current book is already in favorites list
+  if (!isInFavorites(currentBook.isbn)) {
+    favoritesList.push(currentBook);
+  }
+
+  localStorage.setItem('favoritesList', JSON.stringify(favoritesList));
+}
+
+function isInFavorites(isbn) {
+
+  let isFound = false;
+
+  favoritesList.forEach(book => {
+    console.log(book.isbn, isbn);
+
+    if (book.isbn == isbn) {
+      isFound = true;
+    }
+  });
+
+  return isFound;
+}
+
+function loadFavoritesList() {
+  $('#dropdown2').empty();
+
+  favoritesList.forEach(book => {
+    let listItem = $('<li>');
+    let link = $('<a>');
+    link.attr('class', 'white-text');
+    link.attr('data-isbn', book.isbn);
+    link.text(book.title);
+
+    listItem.append(link);
+
+    $('#dropdown2').append(listItem);
+  });
+}
+
+
 function makeAmazonAPICall(title, author) {
   let accessKey = 'AKIAI2EYVAYC5BALQWYQ';
+  let associatesID = 'bounty556-20';
   let secret = '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';
   let timestamp = new Date().toISOString();
 
@@ -168,6 +222,7 @@ function makeAmazonAPICall(title, author) {
 
   let params = [
     'AWSAccessKeyId=' + accessKey,
+    'AssociateTeg=' + associatesID,
     'Author=' + encodeURIComponent(author),
     'Operation=ItemSearch',
     'SearchIndex=Books',
@@ -189,7 +244,7 @@ function makeAmazonAPICall(title, author) {
   `+ queryString;
 
   let hash = CryptoJS.HmacSHA256(stringToSign, secret);
-  var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
+  let hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
   hashInBase64 = hashInBase64.replace(/[+]/g, '%2B');
   hashInBase64 = hashInBase64.replace(/=/g, '%3D');
 
@@ -203,4 +258,23 @@ function makeAmazonAPICall(title, author) {
   }).then(function(response) {
     console.log(response);
   });
+}
+
+function makeEbayAPICall(title, author) {
+//TODO: Fix this tomorrow when I get my API key
+//   $.ajax({
+//     url: 'https://cors-anywhere.herokuapp.com/https://api.sandbox.ebay.com/buy/browse/v1/item_summary/search',
+//     method: 'GET',
+//     headers: {
+//       q: 'testing'
+//     },
+//     data: {
+//       q: 'testing'
+//     },
+//     error: function (error) {
+//       console.log(error);
+//     }
+//   }).then(function(response) {
+//     console.log(response);
+//   });
 }
