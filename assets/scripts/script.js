@@ -1,6 +1,23 @@
-$(document).ready(function() {
-  previewByAuthor('Eiichiro Oda');
+var searchMethod;
+var searchMethods = { // A list of all of our possible search method functions
+  title: previewByTitle,
+  author: previewByAuthor,
+  isbn: searchBookISBN,
+  oclc: searchBookOCLC,
+  lccn: searchBookLCCN,
+  olid: searchBookOLID
+};
 
+$(document).ready(function() {
+  
+  // Auto-populate dropdown text with default search method (Title)
+  setSearchMethod('Title');
+  
+  $(document).on('keydown', '#search-bar', tempSearch);
+  $('#dropdown1').on('click', 'a', function() {
+    setSearchMethod($(this).text());
+  });
+  
   // Drop Down Functionality
   $('.dropdown-trigger').dropdown();
 });
@@ -30,11 +47,14 @@ function previewByTitle(title) {
 
     // Temporarily do this
     if (bookList[0] != undefined) {
-      searchBook(bookList[0].isbn[0]);
+      searchBookISBN(bookList[0].isbn[0]);
     }
   });
 }
 
+// Runs a search on OpenLibrary's search engine by a book's author,
+// grabbing a list of up to the first 5 books found and eventually
+// displaying them underneath the search bar
 function previewByAuthor(author) {
   $.ajax({
     url: 'https://openlibrary.org/search.json?author=' + author,
@@ -57,25 +77,61 @@ function previewByAuthor(author) {
 
     // Temporarily do this
     if (bookList[0] != undefined) {
-      searchBook(bookList[0].isbn[0]);
+      searchBookISBN(bookList[0].isbn[0]);
     }
   });
 }
 
-// Gets book info by a book's ISBN and displays it to the webpage.c
-function searchBook(isbn) {
+// Gets book info by a book's ISBN
+function searchBookISBN(isbn) {
+  searchBook('ISBN', isbn);
+}
+
+// Gets book info by a book's OCLC
+function searchBookOCLC(oclc) {
+  searchBook('OCLC', oclc);
+}
+
+// Gets book info by a book's LCCN
+function searchBookLCCN(lccn) {
+  searchBook('LCCN', lccn);
+}
+
+// Gets book info by a book's OLID
+function searchBookOLID(olid) {
+  searchBook('OLID', olid);
+}
+
+// Runs AJAX call to get book info, and displays info to page
+function searchBook(idType, id) {
   $.ajax({
-    url: 'https://openlibrary.org/api/books?bibkeys=ISBN:' + isbn + '&jscmd=data&format=json',
+    url: 'https://openlibrary.org/api/books?bibkeys=' + idType + ':' + id + '&jscmd=data&format=json',
     method: 'GET'
   }).then(function(response) {
     console.log(response);
 
-    $('.book.img').empty();
+    $('.book-img').empty();
 
     // TODO: Display book to webpage, update webpage info
-    if (response['ISBN:' + isbn].cover != undefined) {
-      let img = $('<img>').attr('src', response['ISBN:' + isbn].cover.large);
+    if (response[idType + ':' + id].cover != undefined) {
+      let img = $('<img>').attr('src', response[idType + ':' + id].cover.large);
       $('.book-img').append(img);
     }
   });
+}
+
+// The function ran when pressing 'enter' in the search bar
+function tempSearch(e) {
+
+  // Run our search based on the current set search method
+  if (e.keyCode == 13) {
+    searchMethod($(this).val());
+  }
+}
+
+// Sets what method we're searching for a book with
+function setSearchMethod(searchOption) {
+  $('.dropdown-trigger').text(searchOption);
+
+  searchMethod = searchMethods[searchOption.toLowerCase()];
 }
