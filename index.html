@@ -3,7 +3,9 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Get A Way!</title>
+  <title>Get Away!</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="assets/styles/style.css">
   <!-- Materialize CSS CDN -->
@@ -17,7 +19,7 @@
 <body>
   <nav>
     <div class="nav-wrapper grey darken-3">
-      <a href="#" class="brand-logo center grey darken-3">Get Away!</a>
+      <a href="#" class="brand-logo center grey darken-3">Get <i class="fab fa-atlassian" id="away-icon"></i>way!</a>
     </div>
   </nav>
 
@@ -26,10 +28,14 @@
 
     <div class="col m1"></div>
 
-    <!-- Favorites List -->
-    <div class="col m1 waves-effect waves-light btn grey darken-1" id="fav-list"><i class="material-icon"></i>Favorites List</div>
-
-
+    <!-- Favorites Dropdown Button -->
+   <div class="col m1">
+      <a class='dropdown-trigger btn grey darken-1' id="fav-list" href="#" data-target='dropdown2'>Favorites</a>
+        <ul id='dropdown2' class='dropdown-content grey darken-2 white-text'>
+          <li></li>
+        </ul>
+    </div>
+    
     <!-- Search Bar-->
       <div class="col m8">
         <input type="text" placeholder="Search to get away..." id="search-bar" class="grey darken-1 z-depth-5">
@@ -38,7 +44,7 @@
 
     <!-- Dropdown Menu -->
     <div class="col m2">
-      <a class='dropdown-trigger btn grey darken-1' href='#'   data-target='dropdown1'>Search By:</a>
+      <a class='dropdown-trigger btn grey darken-1' id="search-by" href="#" data-target='dropdown1'>Search By:</a>
         <ul id='dropdown1' class='dropdown-content grey darken-2 white-text'>
           <li><a href="#!" class="white-text">Title</a></li>
           <li><a href="#!" class="white-text">Author</a></li>
@@ -51,16 +57,55 @@
       
     </div>
 
+    <div class="row">
+      <div class="col s2"><a href="#!" class="waves-effect waves-circle waves-light btn-floating secondary-content red darken-4"><i class="fas fa-heart"></i></a>
+      </div>
+
+      <div class="col s2 white-text" id="fav-btn-txt"> Add to Favorites List</div>
+    </div>
+
   <!--Book Image -->
-  <div class="book-img">
+  <div class="book-img z-depth-5">
     I'm going to be a book image!
   </div>
 
+    <br>
+
   <!-- Book Author/Info -->
 
-  <div class="book-info">
-    I'm going to be information about the book. Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ipsa recusandae sint harum modi quas nesciunt consectetur inventore optio. Voluptates, est suscipit! Excepturi in reprehenderit alias sapiente. Ratione minus doloremque voluptatem?
+  <div class="book-info z-depth-5">
+    <div class="row">
+      <div class="col s12 book-title"> <h3>Book Title</h3></div>
+    </div>
+
+    <div class="row">
+      <div class="col s4">
+        <div class="blockquote">
+          <div class="test1">Author:</div>
+          <div id="author">Matt Damon</div>
+          <br>
+          <div class="test1">Genre:</div>
+          <div id="genre">Horror</div>
+          <br>
+          <div class="test1">Page Count:</div>
+          <div id="page-count">150</div>
+          <br>
+        </div>
+      </div> 
+
+      <!-- Book Summary -->
+        <div class="col s8 summary">SUMMARY:</div>
+
+        <!--Book Summary Content-->
+        <div id="summaryContent"></div>
+
+    </div>
+
   </div>
+
+  <br>
+  <br>
+  <br>
 
   <!--Book Purchasing Sites-->
   <div class="row">
@@ -68,7 +113,7 @@
 
     <!-- Amazon Card -->
     <div class="col s3">
-      <div class="card horizontal grey darken-1">
+      <div class="card horizontal grey darken-1 z-depth-5">
         <div class="card-image">
           <img
             src="https://lh3.googleusercontent.com/proxy/CPeBETPdfopcR8zDUS533uDK09akxqK06FnSnx5Owy3YarrYPyVo-t7La5F0MnuKYzTTSAljXxLebPLXPQ3h3APFHlV2vLr3lYV25JXSwsneTXTqu4lMxVn1PoHo9lVLMXWninJt5OsL">
@@ -87,7 +132,7 @@
 
     <!-- Barnes & Nobles Card -->
     <div class="col s3">
-      <div class="card horizontal grey darken-1">
+      <div class="card horizontal grey darken-1 z-depth-5">
         <div class="card-image">
           <img
             src="https://images.squarespace-cdn.com/content/v1/567c23a6b204d52319a4922f/1451435314587-V6QX3J8UDSQ9T54VGTVF/ke17ZwdGBToddI8pDm48kHhlTY0to_qtyxq77jLiHTtZw-zPPgdn4jUwVcJE1ZvWhcwhEtWJXoshNdA9f1qD7T-j82ScS_xjTqFYGqFrT72qZ_E0ELtHpOZiWcSG1QwIMeEVreGuQ8F95X5MZTW1Jw/BNicon.png">
@@ -107,7 +152,7 @@
 
     <!-- Ebay Card -->
     <div class="col s3">
-      <div class="card horizontal grey darken-1">
+      <div class="card horizontal grey darken-1 z-depth-5">
         <div class="card-image">
           <img
             src="https://cdn3.iconfinder.com/data/icons/popular-services-brands/512/ebay-512.png">
@@ -126,7 +171,7 @@
 
     <!-- Books A Million Card -->
     <div class="col s3">
-      <div class="card horizontal grey darken-1">
+      <div class="card horizontal grey darken-1 z-depth-5">
         <div class="card-image">
           <img
             src="https://shadowmountain.com/wp-content/plugins/shadowmountainbuylinks/assets/img/bam.png">
@@ -146,12 +191,27 @@
   </div>
 
 
-
-
+<!--Footer-->
+  <footer class="page-footer grey darken-2">
+    <div class="footer-copyright">
+      <div class="container">
+      Made with lots of love!
+      <a class="white-text right" href="#!">Blake, Cade, and Jacob</a>
+      </div>
+    </div>
+  </footer>
+      
   <script src="https://code.jquery.com/jquery.js"></script>
+  
+  <!-- For HMAC-SHA256 hash -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/hmac-sha256.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/enc-base64.min.js"></script>
+
   <!-- Materialize Script CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-
+  <!--Font Awesome Script-->
+  <script src="https://kit.fontawesome.com/3376c58300.js" crossorigin="anonymous"></script>
   <script src="assets/scripts/script.js"></script>
 </body>
 

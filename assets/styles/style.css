@@ -3,29 +3,31 @@ html, body{
     margin:0;
     padding:0;
     background-image: url(https://img.wallpapersafari.com/desktop/1920/1080/83/50/ep0d7H.jpg);
+    font-family: 'Russo One', sans-serif;
+
 }
 .full-height{
     height:100%
 }
 
 .book-img{
-    height: 65%;
+    height: 50%;
     width: auto;
     margin: auto 10% auto 10%;
-    background-color: rgb(56, 56, 56);
-    border: 3px solid rgb(39, 39, 39);
+    background-color: rgb(75, 75, 75);
+    /* border: 3px solid rgb(39, 39, 39); */
     color: white;
-    border-radius: 40px
+    /* border-radius: 40px */
 }
 
 .book-info{
-    height:35%;
+    height:50%;
     width:auto;
-    margin: 10px 10% auto 10%;
-    background-color: rgb(56, 56, 56);
-    border: 3px solid rgb(39, 39, 39);
+    margin: auto 10% auto 10%;
+    background-color: rgb(75, 75, 75);
+    /* border: 3px solid rgb(39, 39, 39); */
     color: white;
-    border-radius: 40px
+    /* border-radius: 40px */
 }
 
 #navbar{
@@ -52,4 +54,40 @@ html, body{
 
 .dropdown-trigger{
     border: 3px solid black;
+}
+
+.book-title{
+    text-align: center;
+    text-decoration: underline;
+    text-decoration-style: single;
+    text-decoration-color: rgb(155, 0, 0);
+}
+
+#fav-btn-txt{
+    margin-top:6px;
+}
+
+.blockquote{
+    margin: 20px 0;
+    padding-left: 1.5rem;
+    border-left: 5px solid rgb(155, 0, 0);
+}
+
+.summary{
+    text-align: left;
+    text-decoration: underline;
+    text-decoration-style: double;
+    text-decoration-color: white;
+
+}
+
+.test1{
+    text-decoration:underline;
+    text-decoration-style: double;
+    text-decoration-color: white;
+}
+
+#away-icon{
+    float:none;
+    margin-right:0;
 }
