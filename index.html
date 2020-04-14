@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
   <title>Get Away!</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
@@ -49,33 +50,27 @@
           <li><a href="#!" class="white-text">Title</a></li>
           <li><a href="#!" class="white-text">Author</a></li>
           <li><a href="#!" class="white-text">ISBN</a></li>
-          <li><a href="#!" class="white-text">OCLC</a></li>
           <li><a href="#!" class="white-text">LCCN</a></li>
-          <li><a href="#!" class="white-text">OLID</a></li>
+          <li><a href="#!" class="white-text">OCLC</a></li>
         </ul>
     </div>
       
     </div>
 
     <div class="row">
-      <div class="col s2"><a href="#!" class="waves-effect waves-circle waves-light btn-floating secondary-content red darken-4"><i class="fas fa-heart"></i></a>
+      <div class="col s2"><a href="#!" class="waves-effect waves-circle waves-light btn-floating secondary-content red darken-4"><i class="fas fa-heart" id="fav-icon"></i></a>
       </div>
 
       <div class="col s2 white-text" id="fav-btn-txt"> Add to Favorites List</div>
     </div>
 
-  <!--Book Image -->
-  <div class="book-img z-depth-5">
-    I'm going to be a book image!
-  </div>
-
-    <br>
-
   <!-- Book Author/Info -->
 
   <div class="book-info z-depth-5">
+    <br>
     <div class="row">
-      <div class="col s12 book-title"> <h3>Book Title</h3></div>
+      <div class="col s2" id="book-img"></div>
+      <div class="col s10 book-title"> <h3 id="book-title">Book Title</h3></div>
     </div>
 
     <div class="row">
@@ -84,12 +79,14 @@
           <div class="test1">Author:</div>
           <div id="author">Matt Damon</div>
           <br>
-          <div class="test1">Genre:</div>
-          <div id="genre">Horror</div>
+          <div class="test1">Category:</div>
+          <div id="subjects">Horror</div>
           <br>
           <div class="test1">Page Count:</div>
           <div id="page-count">150</div>
           <br>
+          <div class="test1">Rating:</div>
+          <div id="book-rating"></div>
         </div>
       </div> 
 
@@ -115,15 +112,14 @@
     <div class="col s3">
       <div class="card horizontal grey darken-1 z-depth-5">
         <div class="card-image">
-          <img
-            src="https://lh3.googleusercontent.com/proxy/CPeBETPdfopcR8zDUS533uDK09akxqK06FnSnx5Owy3YarrYPyVo-t7La5F0MnuKYzTTSAljXxLebPLXPQ3h3APFHlV2vLr3lYV25JXSwsneTXTqu4lMxVn1PoHo9lVLMXWninJt5OsL">
+          <img src="https://lh3.googleusercontent.com/proxy/68LRDWSYJ6VOSs3o5IKmwiDGwJJrnfLxDGALhwHNLtrWgwiSb9AWg321RUGp-sQrlT_JR2EIEJFcf_ipcEDkOyAMScw7trnlDW2lyi8y_WudlMo_B1CdpCkpq2-C4zkYLbNYBhax1w">
         </div>
         <div class="card-stacked">
           <div class="card-content white-text">
             <p>AMAZON</p>
           </div>
           <div class="card-action">
-            <a href="https://www.amazon.com/" class="orange-text" target="_blank">CLICK to go to Amazon Books</a>
+            <a href="https://www.amazon.com/" class="orange-text" target="_blank">Search:<br>Amazon Books</a>
           </div>
         </div>
       </div>
@@ -138,11 +134,11 @@
             src="https://images.squarespace-cdn.com/content/v1/567c23a6b204d52319a4922f/1451435314587-V6QX3J8UDSQ9T54VGTVF/ke17ZwdGBToddI8pDm48kHhlTY0to_qtyxq77jLiHTtZw-zPPgdn4jUwVcJE1ZvWhcwhEtWJXoshNdA9f1qD7T-j82ScS_xjTqFYGqFrT72qZ_E0ELtHpOZiWcSG1QwIMeEVreGuQ8F95X5MZTW1Jw/BNicon.png">
         </div>
         <div class="card-stacked">
-          <div class="card-content">
+          <div class="card-content white-text">
             <p>BARNES & NOBLE</p>
           </div>
-          <div class="card-action">
-            <a href="https://www.barnesandnoble.com/b/books/_/N-29Z8q8" target="_blank">CLICK to go to Barnes &
+          <div class="card-action white-text">
+            <a href="https://www.barnesandnoble.com/b/books/_/N-29Z8q8" target="_blank">Search:<br>Barnes &
               Noble</a>
           </div>
         </div>
@@ -157,12 +153,12 @@
           <img
             src="https://cdn3.iconfinder.com/data/icons/popular-services-brands/512/ebay-512.png">
         </div>
-        <div class="card-stacked">
+        <div class="card-stacked white-text">
           <div class="card-content">
             <p>E-BAY BOOKS</p>
           </div>
           <div class="card-action">
-            <a href="https://www.ebay.com/b/Books/267/bn_1854946" target="_blank">CLICK to go to E-Bay books</a>
+            <a href="https://www.ebay.com/b/Books/267/bn_1854946" target="_blank">Search:<br>E-Bay books</a>
           </div>
         </div>
       </div>
@@ -176,12 +172,12 @@
           <img
             src="https://shadowmountain.com/wp-content/plugins/shadowmountainbuylinks/assets/img/bam.png">
         </div>
-        <div class="card-stacked">
+        <div class="card-stacked white-text">
           <div class="card-content">
             <p>BOOKS-A-MILLION</p>
           </div>
           <div class="card-action">
-            <a href="https://www.booksamillion.com/books?id=7863991859468" target="_blank">CLICK to go to Books A
+            <a href="https://www.booksamillion.com/books?id=7863991859468" target="_blank">Search:<br>Books A
               Million</a>
           </div>
         </div>
