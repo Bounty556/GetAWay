@@ -2,16 +2,21 @@ var searchMethod;
 var searchMethods = { // A list of all of our possible search method functions
   title: previewByTitle,
   author: previewByAuthor,
-  isbn: searchBookISBN,
-  oclc: searchBookOCLC,
-  lccn: searchBookLCCN,
-  olid: searchBookOLID
+  isbn: previewByISBN,
+  lccn: previewByLCCN,
+  oclc: previewByOCLC
 };
 var currentBook = null;
 var favoritesList;
 
 $(document).ready(function() {
-  
+  $.ajax({
+    url: 'https://www.googleapis.com/books/v1/volumes/5iTebBW-w7QC',
+    method: 'GET'
+  }).then(function(response) {
+    console.log(response);
+  });
+
   // Auto-populate dropdown text with default search method (Title)
   setSearchMethod('Title');
   
@@ -32,14 +37,11 @@ function init() {
 
   // Search for book when favorite item is clicked
   $('#dropdown2').on('click', 'a', function() {
-    searchBookISBN($(this).attr('data-isbn'));
+    loadFavorite($(this).attr('data-id'));
   });
   
   // Show favorites list when clicked
   $('#fav-list').on('click', loadFavoritesList);
-
-  // Add to favorites list
-  $('.fa-heart').on('click', addFavorite);
 
   // Drop Down Functionality
   $('#fav-list').dropdown();
@@ -50,105 +52,89 @@ function init() {
 // grabbing a list of up to the first 5 books found and eventually
 // displaying them underneath the search bar
 function previewByTitle(title) {
-  $.ajax({
-    url: 'https://openlibrary.org/search.json?title=' + title,
-    method: 'GET'
-  }).then(function(response) {
-    let bookList = [];
-
-    // Only grab the first 5 books from our search
-    for (let i = 0; i < response.docs.length; i++) {
-      if (i === 5) {
-        break;
-      }
-
-      bookList.push(response.docs[i]);
-    }
-
-    bookList.forEach(book => {
-      // TODO: Should display a list of the books under search
-    });
-
-    // Temporarily do this
-    if (bookList[0] != undefined) {
-      searchBookISBN(bookList[0].isbn[0]);
-    }
-  });
+  previewBooks('https://www.googleapis.com/books/v1/volumes?key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&maxResults=5&q=' + title);
 }
 
 // Runs a search on OpenLibrary's search engine by a book's author,
 // grabbing a list of up to the first 5 books found and eventually
 // displaying them underneath the search bar
 function previewByAuthor(author) {
+  previewBooks('https://www.googleapis.com/books/v1/volumes?key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&q=:inauthor:' + author);
+}
+
+// Gets book info by a book's ISBN
+function previewByISBN(isbn) {
+  previewBooks('https://www.googleapis.com/books/v1/volumes?key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&q=:isbn=' + isbn);
+}
+
+// Gets book info by a book's OCLC
+function previewByOCLC(oclc) {
+  previewBooks('https://www.googleapis.com/books/v1/volumes?key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&q=:oclc=' + oclc);
+}
+
+// Gets book info by a book's LCCN
+function previewByLCCN(lccn) {
+  previewBooks('https://www.googleapis.com/books/v1/volumes?key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&q=:lccn=' + lccn);
+}
+
+function previewBooks(url) {
   $.ajax({
-    url: 'https://openlibrary.org/search.json?author=' + author,
+    url: url,
     method: 'GET'
   }).then(function(response) {
     let bookList = [];
 
-    // We only want to grab the first 5 books available
-    for (let i = 0; i < response.docs.length; i++) {
-      if (i === 5) {
-        break;
-      }
-
-      bookList.push(response.docs[i]);
+    // Only grab the first 5 books from our search
+    for (let i = 0; i < response.items.length; i++) {
+      bookList.push(response.items[i]);
     }
-
-    bookList.forEach(book => {
-      // TODO: Should display a list of the books under search
-    });
 
     // Temporarily do this
     if (bookList[0] != undefined) {
-      searchBookISBN(bookList[0].isbn[0]);
+      showBookInfo(bookList[0]);
     }
   });
 }
 
-// Gets book info by a book's ISBN
-function searchBookISBN(isbn) {
-  searchBook('ISBN', isbn);
-}
-
-// Gets book info by a book's OCLC
-function searchBookOCLC(oclc) {
-  searchBook('OCLC', oclc);
-}
-
-// Gets book info by a book's LCCN
-function searchBookLCCN(lccn) {
-  searchBook('LCCN', lccn);
-}
-
-// Gets book info by a book's OLID
-function searchBookOLID(olid) {
-  searchBook('OLID', olid);
-}
-
-// Runs AJAX call to get book info, and displays info to page
-function searchBook(idType, id) {
+function loadFavorite(id) {
   $.ajax({
-    url: 'https://openlibrary.org/api/books?bibkeys=' + idType + ':' + id + '&jscmd=data&format=json',
+    url: 'https://www.googleapis.com/books/v1/volumes/' + id,
     method: 'GET'
   }).then(function(response) {
-    console.log(response);
-
-    currentBook = {
-      title: response[idType + ':' + id].title,
-      isbn: id
-    };
-
-    // TODO: Check if this is in favorites list. If so, change favorite button to unfavorite button
-
-    $('.book-img').empty();
-
-    // TODO: Display book to webpage, update webpage info
-    if (response[idType + ':' + id].cover != undefined) {
-      let img = $('<img>').attr('src', response[idType + ':' + id].cover.large);
-      $('.book-img').append(img);
-    }
+    showBookInfo(response);
   });
+}
+
+function showBookInfo(bookObj) {
+  $('#book-img').empty();
+
+  let imgURL = bookObj.volumeInfo.imageLinks.thumbnail;
+  imgURL = imgURL.replace(/&edge=curl/, '');
+
+  let img = $('<img>').attr('src', imgURL);
+
+  $('#book-img').append(img);
+  $('#book-title').text(bookObj.volumeInfo.title);
+  $('#author').text(bookObj.volumeInfo.authors[0]); // TODO: make all authors show their names if multiple
+  $('#page-count').text(bookObj.volumeInfo.pageCount);
+  $('#summaryContent').html(bookObj.volumeInfo.description);
+
+  // Say no defined categories if not defined
+  if (typeof bookObj.volumeInfo.categories != 'undefined') {
+    $('#subjects').text(bookObj.volumeInfo.categories[0]);
+  } else {
+    $('#subjects').text('No defined categories');
+  }
+  
+  // Say not rated if not ratings yet
+  if (typeof bookObj.volumeInfo.averageRating != 'undefined') {
+    $('#book-rating').text(bookObj.volumeInfo.averageRating + '/5');
+  } else {
+    $('#book-rating').text('None');
+  }
+
+  currentBook = bookObj;
+  checkForFavorite();
 }
 
 // The function ran when pressing 'enter' in the search bar
@@ -173,26 +159,34 @@ function addFavorite() {
   }
 
   // Check if current book is already in favorites list
-  if (!isInFavorites(currentBook.isbn)) {
+  if (isInFavorites(currentBook.id) == -1) {
     favoritesList.push(currentBook);
+
+    checkForFavorite();
   }
 
   localStorage.setItem('favoritesList', JSON.stringify(favoritesList));
 }
 
-function isInFavorites(isbn) {
+function removeFavorite() {
+  let index = isInFavorites(currentBook.id);
+  if (index != -1) {
+    favoritesList.splice(index, 1);
 
-  let isFound = false;
+    checkForFavorite();
+  }
 
-  favoritesList.forEach(book => {
-    console.log(book.isbn, isbn);
+  localStorage.setItem('favoritesList', JSON.stringify(favoritesList));
+}
 
-    if (book.isbn == isbn) {
-      isFound = true;
+function isInFavorites(id) {
+  for (let i = 0; i < favoritesList.length; i++) {
+    if (favoritesList[i].id == id) {
+      return i;
     }
-  });
-
-  return isFound;
+  }
+  
+  return -1;
 }
 
 function loadFavoritesList() {
@@ -202,8 +196,8 @@ function loadFavoritesList() {
     let listItem = $('<li>');
     let link = $('<a>');
     link.attr('class', 'white-text');
-    link.attr('data-isbn', book.isbn);
-    link.text(book.title);
+    link.attr('data-id', book.id);
+    link.text(book.volumeInfo.title);
 
     listItem.append(link);
 
@@ -211,70 +205,18 @@ function loadFavoritesList() {
   });
 }
 
+function checkForFavorite() {
+  if (isInFavorites(currentBook.id) != -1) {
+    $('#fav-icon').attr('class', 'fas fa-times-circle');
+    $('#fav-btn-txt').text('Remove from Favorites List');
 
-function makeAmazonAPICall(title, author) {
-  let accessKey = 'AKIAI2EYVAYC5BALQWYQ';
-  let associatesID = 'bounty556-20';
-  let secret = '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';
-  let timestamp = new Date().toISOString();
+    // Remove from favorites list
+    $('#fav-icon').on('click', removeFavorite);
+  } else {
+    $('#fav-icon').attr('class', 'fas fa-heart');
+    $('#fav-btn-txt').text('Add to Favorites List');
 
-  timestamp = timestamp.substr(0, timestamp.indexOf('.')) + '.000Z';
-
-  let params = [
-    'AWSAccessKeyId=' + accessKey,
-    'AssociateTeg=' + associatesID,
-    'Author=' + encodeURIComponent(author),
-    'Operation=ItemSearch',
-    'SearchIndex=Books',
-    'Service=AWSECommerceService',
-    'Timestamp=' + encodeURIComponent(timestamp),
-    'Title=' + encodeURIComponent(title),
-    'Version=' + encodeURIComponent('2013-08-01')
-  ];
-
-  let queryString = '';
-
-  for (let i = 0; i < params.length; i++) {
-    queryString = queryString.concat(params[i] + '&');
+    // Add to favorites list
+    $('#fav-icon').on('click', addFavorite);
   }
-
-  let stringToSign = `GET
-  webservices.amazon.com
-  /onca/xml
-  `+ queryString;
-
-  let hash = CryptoJS.HmacSHA256(stringToSign, secret);
-  let hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
-  hashInBase64 = hashInBase64.replace(/[+]/g, '%2B');
-  hashInBase64 = hashInBase64.replace(/=/g, '%3D');
-
-  queryString = queryString.concat('Signature=' + hashInBase64);
-
-  console.log(queryString);
-
-  $.ajax({
-    url: 'https://cors-anywhere.herokuapp.com/https://webservices.amazon.com/onca/xml?' + queryString,
-    method: 'GET'
-  }).then(function(response) {
-    console.log(response);
-  });
-}
-
-function makeEbayAPICall(title, author) {
-//TODO: Fix this tomorrow when I get my API key
-//   $.ajax({
-//     url: 'https://cors-anywhere.herokuapp.com/https://api.sandbox.ebay.com/buy/browse/v1/item_summary/search',
-//     method: 'GET',
-//     headers: {
-//       q: 'testing'
-//     },
-//     data: {
-//       q: 'testing'
-//     },
-//     error: function (error) {
-//       console.log(error);
-//     }
-//   }).then(function(response) {
-//     console.log(response);
-//   });
 }
