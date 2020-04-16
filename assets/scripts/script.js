@@ -10,13 +10,6 @@ var currentBook = null;
 var favoritesList;
 
 $(document).ready(function() {
-  $.ajax({
-    url: 'https://www.googleapis.com/books/v1/volumes/5iTebBW-w7QC',
-    method: 'GET'
-  }).then(function(response) {
-    console.log(response);
-  });
-
   // Auto-populate dropdown text with default search method (Title)
   setSearchMethod('Title');
   
@@ -48,33 +41,33 @@ function init() {
   $('#search-by').dropdown();
 }
 
-// Runs a search on OpenLibrary's search engine by a book's title,
+// Runs a search on Google Books's search engine by a book's title,
 // grabbing a list of up to the first 5 books found and eventually
 // displaying them underneath the search bar
 function previewByTitle(title) {
-  previewBooks('https://www.googleapis.com/books/v1/volumes?key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&maxResults=5&q=' + title);
+  previewBooks('https://www.googleapis.com/books/v1/volumes?orderBy=relevance&key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&maxResults=5&q=' + title);
 }
 
-// Runs a search on OpenLibrary's search engine by a book's author,
+// Runs a search on Google Books' search engine by a book's author,
 // grabbing a list of up to the first 5 books found and eventually
 // displaying them underneath the search bar
 function previewByAuthor(author) {
-  previewBooks('https://www.googleapis.com/books/v1/volumes?key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&q=:inauthor:' + author);
+  previewBooks('https://www.googleapis.com/books/v1/volumes?orderBy=relevance&key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&q=:inauthor:' + author);
 }
 
 // Gets book info by a book's ISBN
 function previewByISBN(isbn) {
-  previewBooks('https://www.googleapis.com/books/v1/volumes?key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&q=:isbn=' + isbn);
+  previewBooks('https://www.googleapis.com/books/v1/volumes?orderBy=relevance&key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&q=:isbn=' + isbn);
 }
 
 // Gets book info by a book's OCLC
 function previewByOCLC(oclc) {
-  previewBooks('https://www.googleapis.com/books/v1/volumes?key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&q=:oclc=' + oclc);
+  previewBooks('https://www.googleapis.com/books/v1/volumes?orderBy=relevance&key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&q=:oclc=' + oclc);
 }
 
 // Gets book info by a book's LCCN
 function previewByLCCN(lccn) {
-  previewBooks('https://www.googleapis.com/books/v1/volumes?key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&q=:lccn=' + lccn);
+  previewBooks('https://www.googleapis.com/books/v1/volumes?orderBy=relevance&key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&q=:lccn=' + lccn);
 }
 
 function previewBooks(url) {
@@ -133,8 +126,12 @@ function showBookInfo(bookObj) {
     $('#book-rating').text('None');
   }
 
+  updateBookLinks(bookObj);
+
   currentBook = bookObj;
   checkForFavorite();
+
+  $('#book-content').attr('style', 'visibility: visible');
 }
 
 // The function ran when pressing 'enter' in the search bar
@@ -148,7 +145,7 @@ function tempSearch(e) {
 
 // Sets what method we're searching for a book with
 function setSearchMethod(searchOption) {
-  $('#search-by').text(searchOption);
+  $('#search-by').text('Search By: ' + searchOption);
 
   searchMethod = searchMethods[searchOption.toLowerCase()];
 }
@@ -192,6 +189,7 @@ function isInFavorites(id) {
 function loadFavoritesList() {
   $('#dropdown2').empty();
 
+  // Create 
   favoritesList.forEach(book => {
     let listItem = $('<li>');
     let link = $('<a>');
@@ -207,7 +205,7 @@ function loadFavoritesList() {
 
 function checkForFavorite() {
   if (isInFavorites(currentBook.id) != -1) {
-    $('#fav-icon').attr('class', 'fas fa-times-circle');
+    $('#fav-icon').attr('class', 'fas fa-times-circle customRemoveFavorites');
     $('#fav-btn-txt').text('Remove from Favorites List');
 
     // Remove from favorites list
@@ -219,4 +217,42 @@ function checkForFavorite() {
     // Add to favorites list
     $('#fav-icon').on('click', addFavorite);
   }
+}
+
+// Updates the cards at the bottom of the page to contain links and pricing info for book
+function updateBookLinks(bookObj) {
+  console.log(bookObj);
+
+  $('#amazon-link').attr('href', 'https://www.amazon.com/s?k=' + encodeURIComponent(bookObj.volumeInfo.title) + '&i=stripbooks');
+  $('#barnes-link').attr('href', 'https://www.barnesandnoble.com/s/' + encodeURIComponent(bookObj.volumeInfo.title));
+  $('#google-link').attr('href', bookObj.volumeInfo.infoLink);
+
+  if (bookObj.saleInfo.saleability == 'NOT_FOR_SALE') {
+    $('#google-price').text('Not for sale');
+  } else {
+    $('#google-price').text('Price: $' + bookObj.saleInfo.listPrice.amount);
+  }
+
+  $('#openlib-text').text('Loading...');
+  $('#openlib-link').attr('href', '');
+
+  getOpenLibraryInfo(bookObj.volumeInfo.industryIdentifiers[0].identifier);
+}
+
+function getOpenLibraryInfo(isbn) {
+  $.ajax({
+    url: 'https://openlibrary.org/api/books?format=json&bibkeys=ISBN:' + isbn,
+    method: 'GET'
+  }).then(function (response) {
+
+    if (JSON.stringify(response) == JSON.stringify({}))  {
+      console.log('okay');
+      $('#openlib-text').text('No book found. Add one below!');
+      $('#openlib-link').attr('href', 'https://openlibrary.org/books/add');
+    } else {
+      console.log('no');
+      $('#openlib-text').text('');
+      $('#openlib-link').attr('href', response['ISBN:' + isbn].info_url);
+    }
+  });
 }
