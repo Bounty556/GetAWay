@@ -6,6 +6,7 @@ var searchMethods = { // A list of all of our possible search method functions
   lccn: previewByLCCN,
   oclc: previewByOCLC
 };
+var searchPreviewCall = null;
 var currentBook = null;
 var favoritesList;
 
@@ -21,7 +22,19 @@ $(document).ready(function() {
 
 // Sets initial callbacks
 function init() {
-  $(document).on('keydown', '#search-bar', tempSearch);
+  // When typing in search bar
+  $(document).on('keydown', '#search-bar', search);
+
+  $(document).on('click', '.search-result', function() {
+    loadByID($(this).attr('data-id'));
+    hideSearchPreview();
+  });
+
+  // When clicking away from search bar
+  //$('#search-bar').on('focusout', hideSearchPreview);
+
+  // When clicking on search bar
+  $('#search-bar').on('focusin', showSearchPreview);
 
   // Update search method when clicked
   $('#dropdown1').on('click', 'a', function() {
@@ -30,7 +43,7 @@ function init() {
 
   // Search for book when favorite item is clicked
   $('#dropdown2').on('click', 'a', function() {
-    loadFavorite($(this).attr('data-id'));
+    loadByID($(this).attr('data-id'));
   });
   
   // Show favorites list when clicked
@@ -44,52 +57,70 @@ function init() {
 // Runs a search on Google Books's search engine by a book's title,
 // grabbing a list of up to the first 5 books found and eventually
 // displaying them underneath the search bar
-function previewByTitle(title) {
-  previewBooks('https://www.googleapis.com/books/v1/volumes?orderBy=relevance&key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&maxResults=5&q=' + title);
+function previewByTitle(title, isPreview) {
+  previewBooks('https://www.googleapis.com/books/v1/volumes?orderBy=relevance&key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&maxResults=5&q=' + title, isPreview);
 }
 
 // Runs a search on Google Books' search engine by a book's author,
 // grabbing a list of up to the first 5 books found and eventually
 // displaying them underneath the search bar
-function previewByAuthor(author) {
-  previewBooks('https://www.googleapis.com/books/v1/volumes?orderBy=relevance&key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&q=:inauthor:' + author);
+function previewByAuthor(author, isPreview) {
+  previewBooks('https://www.googleapis.com/books/v1/volumes?orderBy=relevance&key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&maxResults=5&q=:inauthor:' + author, isPreview);
 }
 
 // Gets book info by a book's ISBN
-function previewByISBN(isbn) {
-  previewBooks('https://www.googleapis.com/books/v1/volumes?orderBy=relevance&key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&q=:isbn=' + isbn);
+function previewByISBN(isbn, isPreview) {
+  previewBooks('https://www.googleapis.com/books/v1/volumes?orderBy=relevance&key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&maxResults=5&q=:isbn=' + isbn, isPreview);
 }
 
 // Gets book info by a book's OCLC
-function previewByOCLC(oclc) {
-  previewBooks('https://www.googleapis.com/books/v1/volumes?orderBy=relevance&key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&q=:oclc=' + oclc);
+function previewByOCLC(oclc, isPreview) {
+  previewBooks('https://www.googleapis.com/books/v1/volumes?orderBy=relevance&key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&maxResults=5&q=:oclc=' + oclc, isPreview);
 }
 
 // Gets book info by a book's LCCN
-function previewByLCCN(lccn) {
-  previewBooks('https://www.googleapis.com/books/v1/volumes?orderBy=relevance&key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&q=:lccn=' + lccn);
+function previewByLCCN(lccn, isPreview) {
+  previewBooks('https://www.googleapis.com/books/v1/volumes?orderBy=relevance&key=AIzaSyDydqLQBo9FclGzljl1Iihd5vJBaSWsFXU&maxResults=5&q=:lccn=' + lccn, isPreview);
 }
 
-function previewBooks(url) {
+function previewBooks(url, isPreview) {
   $.ajax({
     url: url,
     method: 'GET'
   }).then(function(response) {
-    let bookList = [];
 
-    // Only grab the first 5 books from our search
-    for (let i = 0; i < response.items.length; i++) {
-      bookList.push(response.items[i]);
-    }
+    if (!isPreview) {
+      hideSearchPreview();
 
-    // Temporarily do this
-    if (bookList[0] != undefined) {
-      showBookInfo(bookList[0]);
+      if (response.items != null) {
+        showBookInfo(response.items[0]);
+      }
+
+    } else {
+      $('#search-results').empty();
+  
+      response.items.forEach(book => {
+        let li = $('<li>').attr('class', 'search-result valign-wrapper');
+        li.attr('data-id', book.id);
+
+        li.text(book.volumeInfo.title + ' by ' + book.volumeInfo.authors[0]);
+
+        if (book.volumeInfo.imageLinks.thumbnail != undefined) {
+          let imgURL = book.volumeInfo.imageLinks.thumbnail.replace(/&edge=curl/, '');
+          let img = $('<img>').attr('src', imgURL);
+          li.prepend(img);
+        }
+        
+        $('#search-results').append(li);
+      });
+
+      // Show the search bar after results load
+      showSearchPreview();
     }
   });
 }
 
-function loadFavorite(id) {
+function loadByID(id) {
   $.ajax({
     url: 'https://www.googleapis.com/books/v1/volumes/' + id,
     method: 'GET'
@@ -134,13 +165,22 @@ function showBookInfo(bookObj) {
   $('#book-content').attr('style', 'visibility: visible');
 }
 
-// The function ran when pressing 'enter' in the search bar
-function tempSearch(e) {
-
+// The function ran using the search bar
+function search(e) {
   // Run our search based on the current set search method
   if (e.keyCode == 13) {
-    searchMethod($(this).val());
+    searchMethod($(this).val(), false);
+  } else {
+    searchMethod($(this).val(), true);
   }
+}
+
+function hideSearchPreview() {
+  $('#search-results').attr('style', 'display: none');
+}
+
+function showSearchPreview() {
+  $('#search-results').attr('style', 'display: inline-block');
 }
 
 // Sets what method we're searching for a book with
@@ -245,7 +285,7 @@ function getOpenLibraryInfo(isbn) {
     method: 'GET'
   }).then(function (response) {
 
-    if (JSON.stringify(response) == JSON.stringify({}))  {
+    if (JSON.stringify(response) === JSON.stringify({}))  {
       console.log('okay');
       $('#openlib-text').text('No book found. Add one below!');
       $('#openlib-link').attr('href', 'https://openlibrary.org/books/add');
